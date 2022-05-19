@@ -1,53 +1,205 @@
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <title>JS Lab</title>
     <style>
-        body {
+        body{
             margin: 0;
             padding: 0;
             font-family: Arial, serif;
+            font-size: 20px;
         }
 
-        h1 {
+        #main-header {
+            text-align: center;
             color: #0B3933;
+        }
+
+        #sending-message{
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding:10px;
+            text-align: center;  
+        }
+
+
+        #input {
+            padding: 5px;
+            border: 1px solid black;
+            width: 80%;
+            margin:auto;
+            font-size: 16px;
+            font-family: Arial, serif;
+        }
+
+        #message-frame {
+            margin: auto;
+            width: 60%;
+            height: 40%;
+        }
+
+        #message-box {
+            height: 90%;
+            overflow: scroll;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            color:black; 
+            
+        }
+
+        .bot-response {
+            border: 1px solid lightgray;
+            border-radius: 5px;
+            background-color: rgba(242, 242, 242, 0.991);
+            margin-right: auto;
+            padding: 10px;
+        }
+
+        .user-response {
+            border: 1px solid rgb(181, 214, 219);
+            border-radius: 15px;
+            background-color: rgb(181, 214, 219);
+            text-align: right;       
+            margin-left: auto;
+            padding: 10px;
         }
     </style>
 </head>
+
 <body>
-<div id="app">
-    <h1 id="main-header">Moja aplikacja</h1>
-    <p>To będzie gra. A oto co muszę zrobić:</p>
-    <ol>
-        <li class="boring">Nauczyć się HTML</li>
-        <li class="boring">Nauczyć się CSS</li>
-        <li>Nauczyć się JS</li>
-        <li id="super-important">Zaimplementować</li>
-    </ol>
-    <button type="button" onmouseover="removeBoringStuff()">Usuń nudne rzeczy</button>
+    <div id="app">
+        <h1 id="main-header">Chat z botem</h1>
+    </div>
 
-    <input type="text" id="myTextField">
-    <input type="checkbox" id="myCheckbox">
-    <button type="button" onclick="readValues()">Odczytaj wartości</button>
-</div>
+    <div id="frame">
+        <div id="message-frame">
+            <div id="message-box"></div>
+            <div id="sending-message">
+            <input type="text" id="input" placeholder="Twoja wiadomość">
+            <!-- <textarea rows="5" cols="60" name="text" placeholder="Enter text" id="input"></textarea> -->
+            <button id="btn-send" class="enter" type="button" onclick=sendMessage()>Wyślij</button>
+            </div
+        </div>
+    </div>
 
-<script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            botWelcomeMessage()
+            const inputField = document.getElementById("input");
+            document.querySelector("#input").addEventListener("keydown", function (e) {
+                if (e.code === "Enter") {
+                    let input = inputField.value;
+                    inputField.value = "";
+                    console.log(`I typed '${input}'`);
+                    processMessage(input)
+                }
+            });
+        });
 
-function removeBoringStuff() {
-document.querySelectorAll("#app .boring").forEach((e) => e.remove());
-};
+        function processMessage(userMessage) {
+            let text = userMessage.toLowerCase();
+            //check for response
+            botMessage = createBotAnswer(text, zapytania, odpowiedzi, odpowiedzi_alternatywne);
+            //updateDOM and print message
+            printMessage(userMessage, botMessage);
+        }
 
-</script>
-<script>
-function readValues() {
-    const v1 = document.getElementById("myCheckbox").checked;
 
-    if(v1){
-        alert("dsadsadsa");
-    }
-    
+        function createBotAnswer(userMessage, zapytania, odpowiedzi, odpowiedzi_alternatywne) {
+            console.log("wpisana wartość: " + `${userMessage}` + " " + typeof userMessage)
+            let botMessage;
+            for (let i = 0; i < zapytania.length; i++) {
+                for (let j = 0; j < zapytania[i].length; j++) {
+                    console.log("porównuje:" + `${userMessage}` + " z " + zapytania[i][j])
+                    console.log(userMessage === zapytania[i][j])
+                    if (userMessage === zapytania[i][j]) {
+                        console.log("w środku ifa")
+                        listaOdpowiedzi = odpowiedzi[i];
+                        console.log(listaOdpowiedzi)
+                        botMessage = listaOdpowiedzi[Math.floor(Math.random() * listaOdpowiedzi.length)];
+                        return botMessage;
+                    }
+                    else {
+                        botMessage = odpowiedzi_alternatywne[Math.floor(Math.random() * odpowiedzi_alternatywne.length)];
 
-};
-</script>
+                    }
+                }
+            }
+            return botMessage;
+        }
+
+        function botWelcomeMessage() {
+            const msgContainer = document.getElementById("message-box");
+            let botDiv = document.createElement("div")
+            botDiv.id = "bot";
+            botDiv.className = "bot-response";
+            botDiv.innerText = "pisze...";
+            msgContainer.appendChild(botDiv);
+
+            botMessage = "Cześć jak tam zajęcia z JS?"
+
+            setTimeout(() => {
+                botDiv.innerText = `${botMessage}`;
+            }
+                , Math.floor(Math.random() * 500))
+        }
+
+        function sendMessage() {
+            msg = document.getElementById("input");
+            processMessage(msg.value);
+            msg.value = "";
+        }
+
+
+        function printMessage(userMessage, botMessage) {
+            const msgContainer = document.getElementById("message-box");
+
+            let userDiv = document.createElement("div");
+            userDiv.id = "user";
+            userDiv.className = "user-response";
+            userDiv.innerHTML = `${userMessage}`
+            msgContainer.appendChild(userDiv);
+
+            let botDiv = document.createElement("div")
+            botDiv.id = "bot";
+            botDiv.className = "bot-response";
+            botDiv.innerText = "pisze...";
+            msgContainer.appendChild(botDiv);
+
+            setTimeout(() => {
+                botDiv.innerText = `${botMessage}`;
+            }
+                , Math.floor(Math.random() * 1000))
+
+
+            //scroll to bottom
+            msgContainer.scrollTo(0, document.querySelector("#message-box").scrollHeight);
+        }
+
+
+        const zapytania = [
+            ["cześć", "witaj", "czesc", "hello"],
+            ["jak sie masz?", "jak się masz?", "co słychać?", "co slychac?"],
+            ["ile masz lat?"],
+            ["czy jesteś botem?", "kim jesteś?", "kim jestes?", "jesteś człowiekiem?", "jestes czlowiekiem?"]
+        ]
+
+        const odpowiedzi = [
+            ["Cześć"],
+            ["Fantastycznie, a co u Ciebie?"],
+            ["2000"],
+            ["Jestem Alfa i Omega"]
+        ]
+
+        const odpowiedzi_alternatywne = [
+            "Opowiedz mi o tym...", "Co jeszcze możesz mi opowiedzieć na ten temat?", "Nie rozumiem ;("
+        ]
+
+
+    </script>
+
 </body>
+
 </html>
